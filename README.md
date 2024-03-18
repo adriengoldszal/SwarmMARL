@@ -1,0 +1,2 @@
+# MARL Training for Swarm Rescue 
+This is the training repo for Multi-agent Swarm Resue. The implementation is based on the framework created by this study – [onpolicy](https://github.com/marlbenchmark/on-policy). To run, clone the [SwarmRL](https://github.com/minhpham160603/SwarmRL) and (SPG)[https://github.com/emmanuel-battesti/simple-playgrounds] repos. The runner and renderer classes are customized for SwarmRL. 
