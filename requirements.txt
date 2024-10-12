@@ -7,7 +7,7 @@ opencv-python
 arcade 
 numpy 
 -e git+https://github.com/emmanuel-battesti/simple-playgrounds.git@swarm-rescue-v2#egg=spg
--e git+https://github.com/minhpham160603/SwarmRL.git@testing#egg=SwarmRL
+-e git+https://github.com/adriengoldszal/SwarmRL.git@communication#egg=SwarmRL
 stable_baselines3
 wandb
 numpy 

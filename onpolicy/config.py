@@ -219,7 +219,7 @@ def get_config():
     parser.add_argument(
         "--user_name",
         type=str,
-        default="marl",
+        default="adrien-goldszal-cole-polytechnique",
         help="[for wandb usage], to specify user's name for simply collecting training data.",
     )
     parser.add_argument(

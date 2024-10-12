@@ -7,17 +7,17 @@ import setproctitle
 import numpy as np
 from pathlib import Path
 import torch
+
 from onpolicy.config import get_config
 
-from src.swarmrl.src.swarm_env.multi_env.multi_agent_comm import MultiSwarmEnv as EnvCom
+from src.swarmrl.src.swarm_env.multi_env.multi_agent_comm import MASwarmTarget as EnvCom
 from src.swarmrl.src.swarm_env.multi_env.multi_agent_gym import (
     MultiSwarmEnv as EnvNoCom,
 )
 from src.swarmrl.src.swarm_env.multi_env.multi_agent_market import (
-    MultiSwarmEnv as EnvMarket,
+    MASwarmMarket as EnvMarket,
 )
 from onpolicy.envs.env_wrappers import SubprocVecEnv, DummyVecEnv, Monitor
-from guppy import hpy
 
 
 """Train script for Swarm Rescue."""
@@ -160,6 +160,9 @@ def main(args):
 
     # wandb
     if all_args.use_wandb:
+        if not os.access(str(run_dir), os.W_OK):
+            print(f"Warning: You do not have write permissions for {str(run_dir)}")
+            
         run = wandb.init(
             config=all_args,
             project=all_args.env_name,
