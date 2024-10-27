@@ -31,6 +31,7 @@ def make_train_env(all_args, env_type):
                     "map_name": all_args.map_name,
                     "n_targets": all_args.n_targets,
                     "n_agents": all_args.n_agents,
+                    "map_size": all_args.map_size,
                     "use_exp_map": all_args.use_exp_map,
                 }
                 env = env_type(**config)
@@ -57,6 +58,7 @@ def make_eval_env(all_args, env_type):
                     "map_name": all_args.map_name,
                     "n_targets": all_args.n_targets,
                     "n_agents": all_args.n_agents,
+                    "map_size": all_args.map_size,
                     "use_exp_map": all_args.use_exp_map,
                 }
                 env = env_type(**config)
@@ -84,6 +86,10 @@ def parse_args(args, parser):
         "--n_targets", type=int, default=3, help="number of wounded persons"
     )
     parser.add_argument("--n_agents", type=int, default=3, help="number of drones")
+    
+    parser.add_argument(
+        "--map_size", type=int, default=300, help="Size of the map (N x N grid)"
+    )
 
     parser.add_argument("--use_conflict_reward", action="store_true", default=False)
 
