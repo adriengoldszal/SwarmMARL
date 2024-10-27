@@ -52,7 +52,7 @@ def make_train_env(all_args, env_type):
 def make_eval_env(all_args, env_type):
     def get_env_fn(rank):
         def init_env():
-            if all_args.env_name == "SwarmRescue":
+            if all_args.env_name == "multi-agent":
                 config = {
                     "map_name": all_args.map_name,
                     "n_targets": all_args.n_targets,

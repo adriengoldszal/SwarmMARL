@@ -7,7 +7,7 @@ import imageio
 from tqdm import tqdm
 from moviepy.editor import ImageSequenceClip
 from memory_profiler import profile
-
+import os 
 
 def _t2n(x):
     return x.detach().cpu().numpy()
@@ -142,7 +142,7 @@ class SwarmRunner(Runner):
 
                 self.log_train(train_infos, total_num_steps)
 
-            # eval
+            # eval  
             if iteration % self.eval_interval == 0 and self.use_eval:
                 self.eval(total_num_steps)
 
@@ -239,6 +239,7 @@ class SwarmRunner(Runner):
 
     @torch.no_grad()
     def eval(self, total_num_steps):
+        print("Eval is called")
         eval_episode_rewards = []
         eval_obs = self.eval_envs.reset()
 
@@ -249,8 +250,20 @@ class SwarmRunner(Runner):
         eval_masks = np.ones(
             (self.n_eval_rollout_threads, self.num_agents, 1), dtype=np.float32
         )
-
+        #Add frames for gif saving
+        print(f"Eval GIF save directory (run_dir): {self.run_dir}")
+        all_frames = []
+        #Only save if both arguments are true
+        save_eval_gifs = self.save_eval_gifs and self.use_wandb
+        
+        if save_eval_gifs:
+            print("Attempting to save gifs...")
+            image = self.eval_envs.render('rgb_array')[0]
+            all_frames.append(image)
+        
         for eval_step in range(self.episode_length):
+            calc_start = time.time()
+            
             self.trainer.prep_rollout()
             eval_action, eval_rnn_states = self.trainer.policy.act(
                 np.concatenate(eval_obs),
@@ -285,6 +298,15 @@ class SwarmRunner(Runner):
             eval_masks[eval_dones == True] = np.zeros(
                 ((eval_dones == True).sum(), 1), dtype=np.float32
             )
+            
+            if save_eval_gifs:
+                image = self.eval_envs.render('rgb_array')[0]
+                all_frames.append(image)
+                # Control frame timing if needed
+                calc_end = time.time()
+                elapsed = calc_end - calc_start
+                if elapsed < self.all_args.ifi:
+                    time.sleep(self.all_args.ifi - elapsed)
 
         eval_episode_rewards = np.array(eval_episode_rewards)
         eval_env_infos = {}
@@ -300,8 +322,24 @@ class SwarmRunner(Runner):
         )
         self.log_env(eval_env_infos, total_num_steps)
 
+        if save_eval_gifs:
+            # Create temporary gif file
+            gif_path = os.path.join(self.run_dir, f'eval_{total_num_steps}.gif')
+            imageio.mimsave(gif_path, all_frames, duration=self.all_args.ifi)
+        
+        # Log to wandb
+        if self.use_wandb:
+            wandb.log({
+                "eval_animation": wandb.Video(gif_path, fps=1/self.all_args.ifi, format="gif"),
+                "step": total_num_steps
+            })
+            print("Saved gif to wandb")
+            
+            
     @torch.no_grad()
     def render(self):
+        print(f"save_videos flag: {self.all_args.save_videos}")
+        print(f"video_dir: {self.all_args.video_dir}")
         """Visualize the env."""
         envs = self.envs
 
@@ -309,11 +347,14 @@ class SwarmRunner(Runner):
         for episode in range(self.all_args.render_episodes):
             obs = envs.reset()
             if self.all_args.save_videos:
+                print("Attempting to save video...")
                 image = envs.render("rgb_array")[0]
                 all_frames.append(image)
             else:
                 envs.render("human")
+                print("save_videos is False, not saving video")
 
+            print(f"Number of frames captured: {len(all_frames)}")
             rnn_states = np.zeros(
                 (
                     self.n_rollout_threads,

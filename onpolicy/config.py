@@ -503,7 +503,7 @@ def get_config():
     parser.add_argument(
         "--eval_interval",
         type=int,
-        default=25,
+        default=10,
         help="time duration between contiunous twice evaluation progress.",
     )
     parser.add_argument(
@@ -512,19 +512,25 @@ def get_config():
         default=32,
         help="number of episodes of a single evaluation.",
     )
+    parser.add_argument(
+        "--save_eval_gifs", 
+        action="store_true", 
+        default=False,
+        help="save evaluation gifs to wandb during training",
+    )
 
-    # render parameters
+    # render parameters : this is for rendering already loaded models !
     parser.add_argument(
         "--save_gifs",
         action="store_true",
         default=False,
-        help="by default, do not save render video. If set, save video.",
+        help="THIS IS FOR MPE RUNNER : by default, do not save render video. If set, save video.",
     )
     parser.add_argument(
         "--use_render",
         action="store_true",
         default=False,
-        help="by default, do not render the env during training. If set, start render. Note: something, the environment has internal render process which is not controlled by this hyperparam.",
+        help="THIS IS FOR SWARM RUNNER by default, do not render the env during training. If set, start render. Note: something, the environment has internal render process which is not controlled by this hyperparam.",
     )
     parser.add_argument(
         "--render_episodes",
